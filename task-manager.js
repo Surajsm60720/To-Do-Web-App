@@ -68,12 +68,19 @@ const displayTasks = () => {
       let taskData = JSON.parse(localStorage.getItem(element.id));
       if (element.classList.contains("completed")) {
         updateStorage(element.id.split("_")[0], element.innerText, taskData.endTime, false);
+        // Remove timer display
+        let timerId = `timer_${element.id}`;
+        let timerSpan = document.getElementById(timerId);
+        if (timerSpan) {
+          clearInterval(timerSpan.countdown);
+        }
       } else {
         updateStorage(element.id.split("_")[0], element.innerText, taskData.endTime, true);
+        // Update timer display
+        updateTimerDisplay(`timer_${element.id}`, new Date(taskData.endTime));
       }
     };
   });
-
   //Edit Tasks
   editTasks = document.getElementsByClassName("edit");
   Array.from(editTasks).forEach((element) => {

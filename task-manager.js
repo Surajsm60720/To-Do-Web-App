@@ -5,14 +5,14 @@ let deleteTasks, editTasks, tasks;
 let updateNote = "";
 let count;
 
-//Function on window load
+// Function on window load
 window.onload = () => {
   updateNote = "";
   count = Object.keys(localStorage).length;
   displayTasks();
 };
 
-//Function to Display The Tasks
+// Function to display the tasks
 const displayTasks = () => {
   if (Object.keys(localStorage).length > 0) {
     tasksDiv.style.display = "inline-block";
@@ -20,10 +20,10 @@ const displayTasks = () => {
     tasksDiv.style.display = "none";
   }
 
-  //Clear the tasks
+  // Clear the tasks
   tasksDiv.innerHTML = "";
 
-  //Fetch All The Keys in local storage
+  // Fetch all the keys in local storage
   let tasks = Object.keys(localStorage);
   tasks = tasks.sort();
 
@@ -58,54 +58,48 @@ const displayTasks = () => {
 
     // Update timer display
     updateTimerDisplay(`timer_${key}`, endTime);
+
+    // Add click event for completing tasks
+    taskInnerDiv.addEventListener("click", () => {
+      if (taskInnerDiv.classList.contains("completed")) {
+      updateStorage(key.split("_")[0], taskName, taskData.endTime, false);
+      clearInterval(timerSpan.countdown); // Stop the timer
+      } 
+      else {
+      updateStorage(key.split("_")[0], taskName, taskData.endTime, true);
+      startTimer(timerSpan, endTime); // Start the timer
+      }
+      displayTasks();
+    });
+    taskInnerDiv.addEventListener("click", () => {
+      if (taskInnerDiv.classList.contains("completed")) {
+        updateStorage(key.split("_")[0], taskName, taskData.endTime, false);
+      } else {
+        updateStorage(key.split("_")[0], taskName, taskData.endTime, true);
+      }
+      displayTasks();
+    });
   }
 
-  //tasks completed
-  tasks = document.querySelectorAll(".task");
-  tasks.forEach((element) => {
-    element.onclick = () => {
-      //local storage update
-      let taskData = JSON.parse(localStorage.getItem(element.id));
-      if (element.classList.contains("completed")) {
-        updateStorage(element.id.split("_")[0], element.innerText, taskData.endTime, false);
-        // Remove timer display
-        let timerId = `timer_${element.id}`;
-        let timerSpan = document.getElementById(timerId);
-        if (timerSpan) {
-          clearInterval(timerSpan.countdown);
-        }
-      } else {
-        updateStorage(element.id.split("_")[0], element.innerText, taskData.endTime, true);
-        // Update timer display
-        updateTimerDisplay(`timer_${element.id}`, new Date(taskData.endTime));
-      }
-    };
-  });
-  //Edit Tasks
+  // Edit Tasks
   editTasks = document.getElementsByClassName("edit");
   Array.from(editTasks).forEach((element) => {
     element.addEventListener("click", (e) => {
-      //Stop propogation to outer elements (if removed when we click delete eventually the click will move to parent)
       e.stopPropagation();
-      //disable other edit buttons when one task is being edited
       disableButtons(true);
-      //update input value and remove div
       let parent = element.parentElement;
       newTaskInput.value = parent.querySelector("#taskname").innerText;
       timeInput.value = new Date(JSON.parse(localStorage.getItem(parent.id)).endTime).toLocaleTimeString('en-US', { hour12: false });
-      //set updateNote to the task that is being edited
       updateNote = parent.id;
-      //remove task
       parent.remove();
     });
   });
 
-  //Delete Tasks
+  // Delete Tasks
   deleteTasks = document.getElementsByClassName("delete");
   Array.from(deleteTasks).forEach((element) => {
     element.addEventListener("click", (e) => {
       e.stopPropagation();
-      //Delete from local storage and remove div
       let parent = element.parentElement;
       removeTask(parent.id);
       parent.remove();
@@ -127,7 +121,7 @@ const displayTasks = () => {
   });
 };
 
-//Disable Edit Button
+// Disable Edit Button
 const disableButtons = (bool) => {
   let editButtons = document.getElementsByClassName("edit");
   Array.from(editButtons).forEach((element) => {
@@ -135,26 +129,24 @@ const disableButtons = (bool) => {
   });
 };
 
-//Remove Task from local storage
+// Remove Task from local storage
 const removeTask = (taskValue) => {
   localStorage.removeItem(taskValue);
   displayTasks();
 };
 
-//Add tasks to local storage
+// Add tasks to local storage
 const updateStorage = (index, taskValue, endTime, completed) => {
   localStorage.setItem(`${index}_${taskValue}`, JSON.stringify({ endTime: endTime, completed: completed }));
   displayTasks();
 };
 
-//Function To Add New Task
+// Function to add a new task
 document.querySelector("#push").addEventListener("click", () => {
-  //Enable the edit button
   disableButtons(false);
   if (newTaskInput.value.length == 0 || timeInput.value.length == 0) {
     alert("Please Enter A Task and Time");
   } else {
-    //Store locally and display from local storage
     const now = new Date();
     const parts = timeInput.value.split(':');
     const hours = parseInt(parts[0], 10);
@@ -163,10 +155,8 @@ document.querySelector("#push").addEventListener("click", () => {
     const endTime = new Date(now.getTime() + (hours * 3600 + minutes * 60 + seconds) * 1000).toISOString();
 
     if (updateNote == "") {
-      //new task
       updateStorage(count, newTaskInput.value, endTime, false);
     } else {
-      //update task
       let existingCount = updateNote.split("_")[0];
       removeTask(updateNote);
       updateStorage(existingCount, newTaskInput.value, endTime, false);
@@ -186,13 +176,6 @@ const updateTimerDisplay = (timerId, endTime) => {
       const currentTime = new Date();
       const timeRemaining = new Date(endTime) - currentTime;
 
-      if (timeRemaining <= 0) {
-        clearInterval(countdown);
-        timerSpan.textContent = '00:00:00';
-        alert('Time is up for ' + timerSpan.parentElement.querySelector("#taskname").innerText + '!');
-        return;
-      }
-
       const hoursLeft = Math.floor(timeRemaining / (1000 * 60 * 60));
       const minutesLeft = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
       const secondsLeft = Math.floor((timeRemaining % (1000 * 60)) / 1000);
@@ -201,6 +184,16 @@ const updateTimerDisplay = (timerId, endTime) => {
         (hoursLeft < 10 ? '0' : '') + hoursLeft + ':' +
         (minutesLeft < 10 ? '0' : '') + minutesLeft + ':' +
         (secondsLeft < 10 ? '0' : '') + secondsLeft;
-    }, 1000);
+
+      if (timeRemaining <= 0) {
+        clearInterval(countdown);
+        timerSpan.textContent = '00:00:00';
+        alert('Time is up for ' + timerSpan.parentElement.querySelector("#taskname").innerText + '!');
+        // Stop the timer and remove it from the DOM
+        clearInterval(timerSpan.countdown);
+        timerSpan.parentElement.removeChild(timerSpan);
+      }
+    }, 1);
+    timerSpan.countdown = countdown;
   }
 };

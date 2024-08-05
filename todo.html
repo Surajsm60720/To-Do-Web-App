@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Task Manager & Timer</title>
+  <title>Task Manager</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"/>
   <link rel="stylesheet" href="styles.css">
-  <script src="task-manager.js" defer></script>
 </head>
 <body>
   <div class="container">
-    <div id="task-manager">
-      <div id="new-task">
-        <input type="text" id="taskNameInput" placeholder="Add a new task...">
-        <input type="text" id="timeInput" placeholder="ETC(HH:MM:SS)">
-        <button id="push">Add Task</button>
-      </div>
-      <div id="tasks"></div>
+    <div id="new-task">
+      <input type="text" placeholder="Enter your task">
+      <input type="date" id="task-date">
+      <input type="time" id="task-time">
+      <button id="push">Add Task</button>
     </div>
+    <div id="tasks"></div>
   </div>
+  <script src="task-manager.js"></script>
 </body>
 </html>

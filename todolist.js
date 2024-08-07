@@ -49,6 +49,7 @@ const displayTasks = () => {
     element.onclick = () => {
       let taskData = JSON.parse(localStorage.getItem(element.id));
       updateStorage(element.id.split("_")[0], taskData.name, taskData.date, taskData.time, !taskData.completed);
+      element.classList.toggle("completed");
     };
   });
 

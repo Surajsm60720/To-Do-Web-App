@@ -169,3 +169,6 @@ body {
     opacity: 1;
   }
 }
+.completed {
+  text-decoration: line-through;
+}
